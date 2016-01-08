@@ -1,0 +1,20 @@
+{
+  "name": "spider",
+  "version": "0.0.0",
+  "description": "spider-itjuzi-company ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "spider"
+  ],
+  "author": "leiyinghao",
+  "license": "BSD-2-Clause",
+  "dependencies": {
+    "eventproxy": "~0.3.4",
+    "cheerio": "~0.19.0",
+    "express": "~4.13.3",
+    "superagent": "~1.4.0"
+  }
+}
