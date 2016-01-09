@@ -1,11 +1,11 @@
 //  get itjuzi   http://www.itjuzi.com/company/31592
 /*
 productName = $('div>span.title').text().trim();
-companyName = $('div>span.title').text().trim();
- address = ;
- stage = ''
- hirepage = ''
-
+companyName = $('div.des-more span').text().trim();
+address = $('span.loca.c-gray-aset').text().trim();
+stage = $('td.mobile-none').text().trim();
+mainpage = $('a.weblink').attr('href');
+hirepage = '';
 */
 
 //company  rule 1..1000  for each
@@ -30,8 +30,6 @@ superagent.get(itjuziUrl)
 	    var href = url.resolve(itjuziUrl, i.toString());  //
 	    companyUrls.push(href);
     }
-
-
 		console.log("companyUrls:\n", companyUrls);
 		var ep = new eventproxy();
 		ep.after('topic_html', companyUrls.length, function (topics) {
