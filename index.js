@@ -1,13 +1,14 @@
-var eventproxy = require('eventproxy');
+var EventProxy  = require('eventproxy');
 var superagent = require('superagent');
 var cheerio = require('cheerio');
 var url = require('url');
 var async = require('async');
 var fs = require('fs');
-
+var ep = new EventProxy();
+var file = fs.createWriteStream('result.json');
 var itjuziUrl = 'http://www.itjuzi.com/company/';
 var companyUrls = [];
-for (i = 1; i <= 3; i++) {
+for (i = 1; i <= 1001; i++) {
   var href = url.resolve(itjuziUrl, i.toString());  //
   companyUrls.push(href);
 }
@@ -18,43 +19,49 @@ var fetchUrl = function (url, callback) {
   concurrencyCount++;
   superagent.get(companyurl)
     .end(function (err, res) {
-      if (err) {
-        callback(err, 'fetch url:' + companyurl + ' err: ');
-        return console.log('fetch url:' + companyurl + ' err: ', err);
+      if (err || res.status  != '200' ) {
+        //callback(err, 'fetch url:' + companyurl + ' err: ');
+        //console.log('fetch url:' + companyurl + ' err: ');
       }
       console.log('现在并发数目是******： ', concurrencyCount, ' **** fetch ' + companyurl + ' successful');
       //ep.emit('topic_html', [companyurl, res.text]);
-      var $ = cheerio.load(res.text);
-      concurrencyCount--;
-      var cpobj = {
-        productName: $('div>span.title').text().replace(/[\n\t\r\s]/g, ""),
-        companyName: $('div.des-more>div> span').eq(0).text().replace(/[\n\t\r\s]/g, ""),
-        address: $('span.loca.c-gray-aset').text().replace(/[\n\t\r\s]/g, ""),
-        stage: $('td.mobile-none').text().replace(/[\n\t\r\s]/g, ""),
-        mainpage: $('a.weblink').attr('href'),
-        hirepage: ''
-      };
-      callback(null, cpobj);
+      if(res.text){
+        var $ = cheerio.load(res.text);
+        concurrencyCount--;
+        var cpobj = {
+          productName: $('div>span.title').text().replace(/[\n\t\r\s]/g, ""),
+          companyName: $('div.des-more>div> span').eq(0).text().replace(/[\n\t\r\s]/g, ""),
+          address: $('span.loca.c-gray-aset').text().replace(/[\n\t\r\s]/g, ""),
+          stage: $('td.mobile-none').text().replace(/[\n\t\r\s]/g, ""),
+          mainpage: $('a.weblink').attr('href'),
+          hirepage: ''
+        };
+        //console.log('cpobj***************',cpobj);
+        fs.appendFile('result.txt',JSON.stringify(cpobj),function(err){});
+        fs.appendFile('result.txt',',\n',function(err){});
+        callback(null, cpobj);
+      }
+
     });
 }
 
-async.mapLimit(companyUrls, 2, function (url, callback) {
+
+async.mapLimit(companyUrls, 3, function (url, callback) {
   console.log('url  is  :::', url);
   fetchUrl(url, callback)
 }, function (err, result) {
-  console.log('now  err , result  is ', result);
-  if (!err) {
+    if(err){
+      file.end();
+    }
     console.log('result.length  ', result);
-    arr = result;
+    var arr = result;
     var file = fs.createWriteStream('result.json');
     file.on('error', function (err) {
       console.log('write  file  error ', err);
     });
-    console.log('print result  **********', '');
-    arr.forEach(function (v) {
-      //console.log('v is  ', JSON.stringify(v));
-      file.write(JSON.stringify(v) + ',\n');
-    });
+    //arr.forEach(function (v) {
+    //  //console.log('v is  ', JSON.stringify(v));
+    //  file.appendFile(JSON.stringify(v) + ',\n');
+    //});
     file.end();
-  }
 })
