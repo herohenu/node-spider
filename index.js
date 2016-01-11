@@ -37,8 +37,8 @@ var fetchUrl = function (url, callback) {
           hirepage: ''
         };
         //console.log('cpobj***************',cpobj);
-        fs.appendFile('result.txt',JSON.stringify(cpobj),function(err){});
-        fs.appendFile('result.txt',',\n',function(err){});
+        fs.appendFile('companies.json',JSON.stringify(cpobj),function(err){});
+        fs.appendFile('companies.json',',\n',function(err){});
         callback(null, cpobj);
       }
 
